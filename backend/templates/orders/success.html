@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Successful payment{% endblock %}
+
+{% block content %}
+    <main class="container-lg position-relative my-5">
+        <div class="d-grid justify-content-center alert alert-success my-5 py-5">
+            <h1 class="text-center fs-2 mb-3">Payment was successful! We are already shipping your item :)</h1>
+            <a class="btn btn-success mt-3" href="{% url 'home' %}">Home</a>
+        </div>
+    </main>
+{% endblock %}
