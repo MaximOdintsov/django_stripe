@@ -9,6 +9,15 @@ class Item(models.Model):
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def get_cents(self):
+        return int(self.price) * 100
+
+
 # class Discount(models.Model):
 #     pass
 #

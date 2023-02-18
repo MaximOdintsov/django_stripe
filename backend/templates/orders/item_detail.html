@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Hardware store{% endblock %}
+
+{% block content %}
+    <main class="container-lg my-3">
+        <h1 class="text-center">Hardware store</h1>
+        <div class="row">
+            <div class="card">
+
+                <div class="card-body">
+                    <a class="btn text-start d-inline-block p-0" onclick="history.back()" data-bs-toggle="tooltip" data-bs-placement="top"
+                    data-bs-custom-class="custom-tooltip" data-bs-title="Back">
+                        <img src="{% static 'orders/img/back-icon.png' %}" alt="Back" width="25">
+                    </a>
+                    <h5 class="card-title text-center">{{ item.name }}</h5>
+                    <p class="card-text border-bottom pb-3">{{ item.description }}</p>
+                    <div class="container d-flex justify-content-between p-0">
+                        {% csrf_token %}
+                        <span class="fs-5">{{ item.price }} $</span>
+                        <button class="btn btn-success" id="checkout-button">Purchase</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script type="text/javascript">
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Create an instance of the Stripe object with your publishable API key
+        var stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
+        var checkoutButton = document.getElementById("checkout-button");
+        checkoutButton.addEventListener("click", function () {
+            fetch("{% url 'create-checkout-session' item.id %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (session) {
+                return stripe.redirectToCheckout({ sessionId: session.id });
+            })
+            .then(function (result) {
+                // If redirectToCheckout fails due to a browser or network
+                // error, you should display the localized error message to your
+                // customer using error.message.
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            })
+            .catch(function (error) {
+                console.error("Error:", error);
+            });
+        });
+    </script>
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+{% endblock %}
+
+
+<!-- <script type="text/javascript">
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for(let i = 0; i <ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+
+    console.log("Sanity check!");
+
+    // Get Stripe publishable key
+    fetch("/config/")
+    .then((result) => { return result.json(); })
+    .then((data) => {
+        // Initialize Stripe.js
+        const stripe = Stripe(data.publicKey);
+
+        // Event handler
+        document.querySelector("#buy-button").addEventListener("click", () => {
+
+            // Get Checkout Session ID
+            fetch("/create-checkout-session/", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: JSON.stringify({payload: "data to send"})
+            })
+            .then((result) => { return result.json(); })
+            .then((data) => {
+                console.log(data);
+                // Redirect to Stripe Checkout
+                return stripe.redirectToCheckout({sessionId: data.sessionId})
+            })
+            .then((res) => {
+                console.log(res);
+            });
+        });
+    });
+
+</script> -->

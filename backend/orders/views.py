@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views import generic
 from django.conf import settings
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 import stripe
 from .models import Item
@@ -20,9 +20,11 @@ def stripe_config(request):
         return JsonResponse(config, safe=False)
 
 
-@csrf_exempt
-def create_checkout_session(request):
-    if request.method == 'GET':
+class CreateCheckoutSessionView(generic.View):
+    def post(self, request, *args, **kwargs):
+
+        item_id = self.kwargs["pk"]
+        item = Item.objects.get(id=item_id)
         domain_url = 'http://localhost:8000/'
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
@@ -31,11 +33,10 @@ def create_checkout_session(request):
                     {
                         'price_data': {
                             'currency': 'usd',
-                            'unit_amount': 50000,
+                            'unit_amount': item.get_cents,
                             'product_data': {
-                                'name': 'Display 4k',
-                                'description': '4K UHD IPS LED Monitor (27'' Diagonal)',
-                                'images': ['https://www.lg.com/us/images/monitors/md05231065/gallery/DG01.jpg'],
+                                'name': item.name,
+                                'description': item.description,
                             },
                         },
                         'quantity': 1,
@@ -46,6 +47,21 @@ def create_checkout_session(request):
                 payment_method_types=['card'],
                 mode='payment',
             )
-            return JsonResponse({'sessionId': checkout_session['id']})
+            return JsonResponse({
+                'id': checkout_session.id
+            })
         except Exception as e:
             return JsonResponse({'error': str(e)})
+
+
+class ItemDetailView(generic.DetailView):
+    model = Item
+    context_object_name = 'item'
+    template_name = 'orders/item_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ItemDetailView, self).get_context_data(**kwargs)
+        context.update({
+            "STRIPE_PUBLIC_KEY": settings.STRIPE_PUBLISHABLE_KEY
+        })
+        return context

@@ -2,3 +2,5 @@ Django==4.1.7
 python-dotenv==0.21.1
 psycopg2-binary==2.9.5
 stripe==5.1.1
+djangorestframework==3.14.0
+markdown==3.4.1
