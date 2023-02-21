@@ -1,24 +1,35 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load validation_tag %}
 {% block title %}Hardware store{% endblock %}
 
 {% block content %}
+    {% include 'includes/header.html' %}
+    {% check_if_the_item_is_in_the_cart item user as item_in_cart %}
     <main class="container-lg my-3">
         <h1 class="text-center">Hardware store</h1>
         <div class="row">
             <div class="card">
-
                 <div class="card-body">
                     <a class="btn text-start d-inline-block p-0" onclick="history.back()" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-custom-class="custom-tooltip" data-bs-title="Back">
-                        <img src="{% static 'orders/img/back-icon.png' %}" alt="Back" width="25">
+                       data-bs-custom-class="custom-tooltip" data-bs-title="Back">
+                        <img src="{% static 'orders/img/back-icon-dark.png' %}" alt="Back" width="25">
                     </a>
                     <h5 class="card-title text-center">{{ item.name }}</h5>
                     <p class="card-text border-bottom pb-3">{{ item.description }}</p>
                     <div class="container d-flex justify-content-between p-0">
-                        {% csrf_token %}
                         <span class="fs-5">{{ item.price }} $</span>
-                        <button class="btn btn-success" id="checkout-button">Purchase</button>
+						<div class="d-flex">
+							{% if item_in_cart %}
+								<a href="{% url 'cart' %}" class="btn btn-success m-0">Item added to cart</a>
+							{% else %}
+								<form action="{% url 'add_one_item_to_cart' item.id %}" method="post" class="">
+									{% csrf_token %}
+									<button type="submit" class="btn btn-success">Add to cart</button>
+								</form>
+								<button class="btn btn-danger ms-2" id="checkout-button">Buy now</button>
+							{% endif %}
+						</div>
                     </div>
                 </div>
             </div>
@@ -31,7 +42,7 @@
         var stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
         var checkoutButton = document.getElementById("checkout-button");
         checkoutButton.addEventListener("click", function () {
-            fetch("{% url 'create-checkout-session' item.id %}", {
+            fetch("{% url 'buy_item' item.id %}", {
                 method: "POST",
                 headers: {
                     'X-CSRFToken': csrftoken
@@ -61,57 +72,3 @@
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     </script>
 {% endblock %}
-
-
-<!-- <script type="text/javascript">
-    function getCookie(cname) {
-        let name = cname + "=";
-        let decodedCookie = decodeURIComponent(document.cookie);
-        let ca = decodedCookie.split(';');
-        for(let i = 0; i <ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
-
-    console.log("Sanity check!");
-
-    // Get Stripe publishable key
-    fetch("/config/")
-    .then((result) => { return result.json(); })
-    .then((data) => {
-        // Initialize Stripe.js
-        const stripe = Stripe(data.publicKey);
-
-        // Event handler
-        document.querySelector("#buy-button").addEventListener("click", () => {
-
-            // Get Checkout Session ID
-            fetch("/create-checkout-session/", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                "X-CSRFToken": getCookie("csrftoken"),
-            },
-            body: JSON.stringify({payload: "data to send"})
-            })
-            .then((result) => { return result.json(); })
-            .then((data) => {
-                console.log(data);
-                // Redirect to Stripe Checkout
-                return stripe.redirectToCheckout({sessionId: data.sessionId})
-            })
-            .then((res) => {
-                console.log(res);
-            });
-        });
-    });
-
-</script> -->

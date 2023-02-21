@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+    {% include 'includes/header.html' %}
+    <main class="container-lg my-3">
+        {% if order_items|length > 0 %}
+            <h1 class="text-center">Cart</h1>
+            <div class="row justify-content-center m-0 p-0">
+                <!-- Item card -->
+                <div class="col-12 col-md-6">  
+                    {% for order_item in order_items %}
+                        {% if order_item.quantity >= 1  %}
+                            <div class="card mb-3 cart-card rounded-3">
+                                <div class="card-body border-bottom p-3">
+                                    <h2 class="fs-4 pb-1 m-0">
+                                        <a href="{% url 'item' order_item.item.id %}" class="link-dark">
+                                            {{ order_item.item.name }}
+                                        </a>
+                                    </h2>
+                                    <div class="d-flex row justify-content-between align-items-end p-0 m-0">
+                                        <div class="col-7 m-0 p-0">
+                                            <span>
+                                                {{ order_item.item.price }} $
+                                            </span>
+                                        </div>
+
+                                        <ul class="col-5 list-group list-group-horizontal rounded-3 m-0">
+                                            <li class="list-group-item py-0">
+                                                <form action="{% url 'remove_one_item_from_cart' order_item.item.id %}" method="post">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn px-2 py-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-lg" viewBox="0 0 16 16">
+                                                            <path fill-rule="evenodd" d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z"/>
+                                                        </svg>
+                                                        <i class="bi bi-dash-lg"></i>
+                                                    </button>
+                                                </form>
+                                            </li>
+
+                                            <li class="d-grid list-group-item align-items-center py-0">
+                                                <span class="px-3 py-1">{{ order_item.quantity }}</span>
+                                            </li>
+
+                                            <li class="list-group-item py-0">
+                                                <form action="{% url 'add_one_item_to_cart' order_item.item.id %}" method="post">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn px-2 py-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                                            <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+                                                        </svg>
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                </form>
+                                            </li>     
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="row m-0 p-3">
+                                    <form class="col-7 m-0 p-0" action="{% url 'remove_item_from_cart' order_item.item.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-secondary text-start p-1">Remove from cart</button>
+                                    </form>
+
+                                    <div class="d-grid col m-0 p-0">
+                                        <h5 class="text-start pb-1">Total:</h5>
+                                        
+                                        <span class="fs-5">{{ order_item.get_order_item_price }} $</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+
+
+                <!-- Order conditions card -->
+                <div class="col-12 col-md-3">
+
+                    <div class="card mb-3 rounded-3">
+                        <div class="d-block card-header">Order conditions</div>
+
+                        <div class="card-body rounded-3">
+                            <h5 class="d-flex card-title">Total:</h5>
+                            <div class="d-flex justify-content-between align-items-end">
+
+                                <div class="text-end d-grid">
+                                    <strong class="fs-5">{{ cart.amount }} $</strong>
+                                </div>
+                            </div>
+
+                            <div class="row border-top m-0 p-0 mt-3 pt-3">
+                                <button class="col-12 btn btn-success rounded-3 m-0" id="checkout-button">Checkout</button>
+
+                                <form class="col-12 text-center m-0 p-0 mt-1" action="{% url 'home' %}" target="_self" method="get">
+                                    <button class="col-12 btn btn-info rounded-3">Home</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center">
+                <h1 class="fs-1">Cart is empty</h1>
+                <br>
+                <form action="{% url 'home' %}" target="_self" method="get">
+                    <button class="btn btn-info fs-3 px-5">Home</button>
+                </form>
+            </div>
+        {% endif %}
+    </main>
+    <script type="text/javascript">
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Create an instance of the Stripe object with your publishable API key
+        var stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
+        var checkoutButton = document.getElementById("checkout-button");
+        checkoutButton.addEventListener("click", function () {
+            fetch("{% url 'cart' %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (session) {
+                return stripe.redirectToCheckout({ sessionId: session.id });
+            })
+            .then(function (result) {
+                // If redirectToCheckout fails due to a browser or network
+                // error, you should display the localized error message to your
+                // customer using error.message.
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            })
+            .catch(function (error) {
+                console.error("Error:", error);
+            });
+        });
+    </script>
+{% endblock %}

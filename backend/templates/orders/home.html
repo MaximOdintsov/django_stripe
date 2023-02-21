@@ -1,19 +1,40 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load validation_tag %}
 {% block title %}Hardware store{% endblock %}
 
 {% block content %}
+    {% include 'includes/header.html' %}
     <main class="container-lg my-3">
         <h1 class="text-center">Hardware store</h1>
         <div class="row">
             {% for item in items %}
+                {% check_if_the_item_is_in_the_cart item user as item_in_cart %}
                 <div class="card" style="width: 18rem;">
                     <div class="card-body d-grid">
                         <a href="{% url 'item' item.id %}" class="card-title text-center link-dark">{{ item.name }}</a>
                         <p class="card-text border-bottom pb-3">{{ item.description }}</p>
-                        <div class="container d-flex justify-content-between p-0">
-                            <span class="fs-5">{{ item.price }} $</span>
-                            <button class="btn btn-success">Add to cart</button>
+                        <div class="row justify-content-between p-0 m-0">
+                            <span class="fs-5 col-12 text-center m-0 mb-3">{{ item.price }} $</span>
+                            <div class="row col-12 m-0 p-0">
+                                {% if item_in_cart %}
+                                    <a href="{% url 'cart' %}" class="d-flex col-12 btn btn-success align-items-center justify-content-center m-0">
+                                        Item added to cart
+                                    </a>
+                                    <form action="{% url 'remove_item_from_cart' item.id %}" method="post" class="col-12 m-0 p-0">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger h-100 w-100">Remove item from cart</button>
+                                    </form>
+                                {% else %}
+                                    <form action="{% url 'add_one_item_to_cart' item.id %}" method="post" class="col-6 m-0 p-0">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success h-100 w-100">Add to cart</button>
+                                    </form>
+                                    <a href="{% url 'item' item.id %}" class="d-flex col-6 btn btn-danger align-items-center justify-content-center m-0 p-0">
+                                        Buy now
+                                    </a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>

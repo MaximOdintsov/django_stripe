@@ -1,0 +1,213 @@
+[
+{
+    "model": "admin.logentry",
+    "pk": 1,
+    "fields": {
+        "action_time": "2023-02-19T08:14:16.928Z",
+        "user": 1,
+        "content_type": 6,
+        "object_id": "1",
+        "object_repr": "Монитор",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 2,
+    "fields": {
+        "action_time": "2023-02-19T08:14:32.965Z",
+        "user": 1,
+        "content_type": 6,
+        "object_id": "2",
+        "object_repr": "Монитор 2к",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 3,
+    "fields": {
+        "action_time": "2023-02-19T10:29:34.852Z",
+        "user": 1,
+        "content_type": 6,
+        "object_id": "2",
+        "object_repr": "Монитор 2к",
+        "action_flag": 2,
+        "change_message": "[{\"changed\": {\"fields\": [\"Item price\"]}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 4,
+    "fields": {
+        "action_time": "2023-02-19T10:29:34.867Z",
+        "user": 1,
+        "content_type": 6,
+        "object_id": "1",
+        "object_repr": "Монитор",
+        "action_flag": 2,
+        "change_message": "[{\"changed\": {\"fields\": [\"Item price\"]}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 5,
+    "fields": {
+        "action_time": "2023-02-19T10:30:06.193Z",
+        "user": 1,
+        "content_type": 7,
+        "object_id": "1",
+        "object_repr": "Order object (1)",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}, {\"added\": {\"name\": \"order item\", \"object\": \"OrderItem object (1)\"}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 6,
+    "fields": {
+        "action_time": "2023-02-19T10:30:29.131Z",
+        "user": 1,
+        "content_type": 7,
+        "object_id": "1",
+        "object_repr": "Order object (1)",
+        "action_flag": 2,
+        "change_message": "[]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 7,
+    "fields": {
+        "action_time": "2023-02-19T11:17:35.977Z",
+        "user": 1,
+        "content_type": 7,
+        "object_id": "1",
+        "object_repr": "Cart  №1",
+        "action_flag": 3,
+        "change_message": ""
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 8,
+    "fields": {
+        "action_time": "2023-02-19T11:18:34.096Z",
+        "user": 1,
+        "content_type": 7,
+        "object_id": "2",
+        "object_repr": "Cart  №2",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}, {\"added\": {\"name\": \"order item\", \"object\": \"OrderItem object (2)\"}}]"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "axxcnb5qwczuuwjoi7zojn2v7jdvjqd9",
+    "fields": {
+        "session_data": ".eJxVjDsOwyAQRO9CHSHM8nPK9D4DWlgITiIsGbuKcvdgyUVSTDPvzbyZx30rfm9p9TOxKxvY5bcLGJ-pHoAeWO8Lj0vd1jnwQ-EnbXxaKL1up_t3ULCVvrYwkow9kLU1WuQoMpCzNmLCkZCCDGTJORVByW6RMABSO4eDNUqzzxfuITev:1pTgvD:uhFl06PAY3oszmQX5Epiy-_3rmj7DxzgKwQ_5jL5Xuk",
+        "expire_date": "2023-03-05T10:27:55.881Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "o8xl5ckg7g3bca80m0mj8xfxhlegx5v8",
+    "fields": {
+        "session_data": ".eJxVjDsOwyAQRO9CHSHM8nPK9D4DWlgITiIsGbuKcvdgyUVSTDPvzbyZx30rfm9p9TOxKxvY5bcLGJ-pHoAeWO8Lj0vd1jnwQ-EnbXxaKL1up_t3ULCVvrYwkow9kLU1WuQoMpCzNmLCkZCCDGTJORVByW6RMABSO4eDNUqzzxfuITev:1pTRr0:Ixv4dhbucrL8ku2Png9hmk6tUbMwSf-RDpijD1SX-CY",
+        "expire_date": "2023-03-04T18:22:34.334Z"
+    }
+},
+{
+    "model": "orders.item",
+    "pk": 1,
+    "fields": {
+        "name": "Монитор",
+        "description": "Монитор 4к",
+        "price": "400.00"
+    }
+},
+{
+    "model": "orders.item",
+    "pk": 2,
+    "fields": {
+        "name": "Монитор 2к",
+        "description": "Монитор 2к",
+        "price": "200.00"
+    }
+},
+{
+    "model": "orders.order",
+    "pk": 2,
+    "fields": {
+        "user": 2,
+        "amount": "0.00",
+        "creation_time": "2023-02-19T11:18:34.084Z",
+        "status": 1
+    }
+},
+{
+    "model": "orders.orderitem",
+    "pk": 2,
+    "fields": {
+        "order": 2,
+        "item": 2,
+        "quantity": 1
+    }
+},
+{
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$390000$guNuxW7Tn3OI9jvCk1QDy7$2Iuj45QVthrKMEUwfzJj7R8taX6RwNkeIAFnA4Zj2+o=",
+        "last_login": "2023-02-19T10:27:55.879Z",
+        "is_superuser": true,
+        "first_name": "",
+        "last_name": "",
+        "email": "maxim@mail.ru",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2023-02-18T17:28:55.720Z",
+        "username": "maxim",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$390000$CIi97tkNQewwJGO69vKzik$PcNDNCKFL6kpaciaWobgT3MGBrrAP/D3hjv4TINYof0=",
+        "last_login": null,
+        "is_superuser": false,
+        "first_name": "Maxim",
+        "last_name": "",
+        "email": "maximss@mail.ru",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2023-02-18T17:38:09.153Z",
+        "username": "maximss@mail.ru",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "users.user",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$390000$EKAd5ad5mfBLbYYwsWX17D$YX5KJevl7UHdKYy+lzryW4eUTz7fwyvuRyj9dsYfd1M=",
+        "last_login": null,
+        "is_superuser": false,
+        "first_name": "Maxim",
+        "last_name": "",
+        "email": "maximssw@mail.ru",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2023-02-18T17:38:28.321Z",
+        "username": "maximssw@mail.ru",
+        "groups": [],
+        "user_permissions": []
+    }
+}
+]

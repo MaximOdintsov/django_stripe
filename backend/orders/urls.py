@@ -8,7 +8,12 @@ urlpatterns = [
     path('cancel/', TemplateView.as_view(template_name='orders/cancel.html'), name='cancel'),
     path('', views.HomePageView.as_view(), name='home'),
 
-    path('config/', views.stripe_config),
-    path('create-checkout-session/<int:pk>/', views.CreateCheckoutSessionView.as_view(), name='create-checkout-session')
+    path('add-one-item-to-cart/<int:pk>', views.AddOneItemToCart.as_view(), name='add_one_item_to_cart'),
+    path('remove-one-item-from-cart/<int:pk>', views.RemoveOneItemFromCart.as_view(), name='remove_one_item_from_cart'),
+    path('remove-item-from-cart/<int:pk>', views.RemoveItemFromCart.as_view(), name='remove_item_from_cart'),
+
+    path('buy/<int:pk>/', views.BuyOneItemView.as_view(), name='buy_item'),
+    path('cart', views.CartView.as_view(), name='cart'),
+    path('webhooks/stripe/', views.stripe_webhook, name='stripe-webhook'),
 
 ]
