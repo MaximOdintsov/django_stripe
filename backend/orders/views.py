@@ -8,10 +8,34 @@ from django.http.response import JsonResponse, HttpResponseBadRequest
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 
+from decimal import Decimal
 import stripe
-from .models import Item, Order, Tax, Discount
+from .models import Item, Order, OrderItem, Tax, Discount
 
 User = get_user_model()
+
+
+def get_list_of_taxes():
+    list_of_taxes = [stripe.TaxRate.create(
+        display_name=item.display_name,
+        inclusive=item.inclusive,
+        percentage=item.percentage,
+        country=item.country,
+        state=item.state,
+    ) for item in Tax.objects.all()]
+
+    list_of_taxes = [item.id for item in list_of_taxes]
+    return list_of_taxes
+
+
+def get_list_of_discounts():
+    discount = Discount.objects.all().first()
+    return stripe.Coupon.create(
+        name=discount.name,
+        currency=discount.currency,
+        percent_off=discount.percent_off,
+        max_redemptions=discount.max_redemptions,
+    )
 
 
 class HomePageView(generic.ListView):
@@ -66,34 +90,9 @@ class CartView(LoginRequiredMixin, generic.View):
         domain_url = 'http://localhost:8000/'
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
-        def get_list_of_taxes():
-            if len(Tax.objects.all()):
-                list_of_taxes = [stripe.TaxRate.create(
-                    display_name=item.display_name,
-                    inclusive=item.inclusive,
-                    percentage=item.percentage,
-                    country=item.country,
-                    state=item.state,
-                ) for item in Tax.objects.all()]
-
-                list_of_taxes = [item.id for item in list_of_taxes]
-                return list_of_taxes
-            return False
-
-        def get_list_of_discounts():
-            if len(Discount.objects.all()):
-                discount = Discount.objects.all().first()
-                return stripe.Coupon.create(
-                    name=discount.name,
-                    currency=discount.currency,
-                    percent_off=discount.percent_off,
-                    max_redemptions=discount.max_redemptions,
-                )
-            return False
-
         try:
-            if get_list_of_taxes():
-                if get_list_of_discounts():
+            if len(Tax.objects.all()):
+                if len(Discount.objects.all()):
                     checkout_session = stripe.checkout.Session.create(
                         line_items=[
                             {
@@ -109,9 +108,9 @@ class CartView(LoginRequiredMixin, generic.View):
                                 'dynamic_tax_rates': get_list_of_taxes(),
                             } for order_item in order_items
                         ],
-                        success_url=domain_url+'success/',
-                        cancel_url=domain_url+'cancel/',
-                        payment_method_types=['card'],
+                        success_url=domain_url + 'success/',
+                        cancel_url=domain_url + 'cancel/',
+                        payment_method_types=['card', 'us_bank_account'],
                         mode='payment',
                         discounts=[{'coupon': get_list_of_discounts().id}],
                     )
@@ -131,12 +130,12 @@ class CartView(LoginRequiredMixin, generic.View):
                                 'dynamic_tax_rates': get_list_of_taxes(),
                             } for order_item in order_items
                         ],
-                        success_url=domain_url+'success/',
-                        cancel_url=domain_url+'cancel/',
-                        payment_method_types=['card'],
+                        success_url=domain_url + 'success/',
+                        cancel_url=domain_url + 'cancel/',
+                        payment_method_types=['card', 'us_bank_account'],
                         mode='payment',
                     )
-            elif get_list_of_discounts():
+            elif len(Discount.objects.all()):
                 checkout_session = stripe.checkout.Session.create(
                     line_items=[
                         {
@@ -153,7 +152,7 @@ class CartView(LoginRequiredMixin, generic.View):
                     ],
                     success_url=domain_url + 'success/',
                     cancel_url=domain_url + 'cancel/',
-                    payment_method_types=['card'],
+                    payment_method_types=['card', 'us_bank_account'],
                     mode='payment',
                     discounts=[{'coupon': get_list_of_discounts().id}],
                 )
@@ -192,25 +191,97 @@ class BuyOneItemView(generic.View):
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
         try:
-            checkout_session = stripe.checkout.Session.create(
-                line_items=[
-                    {
-                        'price_data': {
-                            'currency': 'usd',
-                            'unit_amount': item.get_cents,
-                            'product_data': {
-                                'name': item.name,
-                                'description': item.description,
+            order = Order.get_cart(request.user)
+            OrderItem.objects.create(order=order, item=item, quantity=1)
+        except:
+            pass
+
+        try:
+            if len(Tax.objects.all()):
+                if len(Discount.objects.all()):
+                    checkout_session = stripe.checkout.Session.create(
+                        line_items=[
+                            {
+                                'price_data': {
+                                    'currency': 'usd',
+                                    'unit_amount': item.get_cents,
+                                    'product_data': {
+                                        'name': item.name,
+                                        'description': item.description,
+                                    },
+                                },
+                                'quantity': 1,
+                                'dynamic_tax_rates': get_list_of_taxes(),
+                            }
+                        ],
+                        success_url=domain_url + 'success/',
+                        cancel_url=domain_url + 'cancel/',
+                        payment_method_types=['card', 'us_bank_account'],
+                        mode='payment',
+                        discounts=[{'coupon': get_list_of_discounts().id}],
+                    )
+                else:
+                    checkout_session = stripe.checkout.Session.create(
+                        line_items=[
+                            {
+                                'price_data': {
+                                    'currency': 'usd',
+                                    'unit_amount': item.get_cents,
+                                    'product_data': {
+                                        'name': item.name,
+                                        'description': item.description,
+                                    },
+                                },
+                                'quantity': 1,
+                                'dynamic_tax_rates': get_list_of_taxes(),
+                            }
+                        ],
+                        success_url=domain_url + 'success/',
+                        cancel_url=domain_url + 'cancel/',
+                        payment_method_types=['card', 'us_bank_account'],
+                        mode='payment',
+                    )
+            elif len(Discount.objects.all()):
+                checkout_session = stripe.checkout.Session.create(
+                    line_items=[
+                        {
+                            'price_data': {
+                                'currency': 'usd',
+                                'unit_amount': item.get_cents,
+                                'product_data': {
+                                    'name': item.name,
+                                    'description': item.description,
+                                },
                             },
-                        },
-                        'quantity': 1,
-                    }
-                ],
-                success_url=domain_url+'success/',
-                cancel_url=domain_url+'cancel/',
-                payment_method_types=['card', 'us_bank_account'],
-                mode='payment',
-            )
+                            'quantity': 1,
+                        }
+                    ],
+                    success_url=domain_url + 'success/',
+                    cancel_url=domain_url + 'cancel/',
+                    payment_method_types=['card', 'us_bank_account'],
+                    mode='payment',
+                    discounts=[{'coupon': get_list_of_discounts().id}],
+                )
+            else:
+                checkout_session = stripe.checkout.Session.create(
+                    line_items=[
+                        {
+                            'price_data': {
+                                'currency': 'usd',
+                                'unit_amount': item.get_cents,
+                                'product_data': {
+                                    'name': item.name,
+                                    'description': item.description,
+                                },
+                            },
+                            'quantity': 1,
+                        }
+                    ],
+                    success_url=domain_url + 'success/',
+                    cancel_url=domain_url + 'cancel/',
+                    payment_method_types=['card', 'us_bank_account'],
+                    mode='payment',
+                )
             return JsonResponse({
                 'id': checkout_session.id
             })
@@ -237,26 +308,41 @@ def stripe_webhook(request):
 
     # Handle the checkout.session.completed event
     if event['type'] == 'checkout.session.completed':
-        tax = event['data']['object']['total_details']['amount_tax']
-        discount = event['data']['object']['total_details']['amount_discount']
+        amount_tax = event['data']['object']['total_details']['amount_tax']
+        amount_discount = event['data']['object']['total_details']['amount_discount']
         country = event['data']['object']['customer_details']['address']['country']
         state = event['data']['object']['customer_details']['address']['state']
-
+        final_amount = event['data']['object']['amount_total']
         try:
             username = request.META['USERNAME']
             user = User.objects.get(username=username)
             cart = Order.get_cart(user)
+        except Exception:
+            cart = Order.objects.create()
+
+        if amount_tax:
             taxes = Tax.objects.filter(country=country)
             for tax in taxes:
                 if tax.state == state:
                     cart.tax = tax
                     break
                 cart.tax = tax
-            cart.save()
+            if cart.tax.inclusive is True:
+                amount = final_amount + amount_discount
+            else:
+                amount = final_amount + amount_discount - amount_tax
+        else:
+            amount = final_amount + amount_discount
 
-        finally:
-            cart.make_order()
-            cart.save()
+        if amount_discount:
+            percent = 100 - (final_amount-amount_tax)/amount * 100
+            discount = Discount.objects.filter(percent_off=percent).first()
+            cart.discount = discount
+
+        cart.amount = Decimal(amount / 100)
+        cart.save()
+        cart.make_order()
+    return HttpResponse(status=200)
 
 
 class AddOneItemToCart(LoginRequiredMixin, generic.View):

@@ -17,9 +17,9 @@ class ItemAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    fields = ('user', 'tax')
-    list_display = ['id', 'creation_time', 'user', 'tax', 'amount', 'status']
-    list_editable = ['amount', 'status']
+    fields = ('user', 'tax', 'discount')
+    list_display = ['id', 'creation_time', 'user', 'tax', 'discount', 'amount', 'final_amount', 'status']
+    list_editable = ['tax', 'discount', 'amount', 'status']
     inlines = [OrderItemInline]
 
 

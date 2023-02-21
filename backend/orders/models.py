@@ -1,7 +1,7 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -14,7 +14,6 @@ class Item(models.Model):
     name = models.CharField(verbose_name='Item name', max_length=255)
     description = models.TextField(verbose_name='Item description')
     price = models.DecimalField(verbose_name='Item price', max_digits=12, decimal_places=2, default=0)
-    currency = models.CharField(verbose_name='Currency', max_length=3)
 
     class Meta:
         verbose_name = 'Item'
@@ -51,7 +50,7 @@ class Discount(models.Model):
         verbose_name_plural = 'Discounts'
 
     def __str__(self):
-        return self.name
+        return f'{self.name} -{self.percent_off}%'
 
 
 class Tax(models.Model):
@@ -81,10 +80,11 @@ class Order(models.Model):
         (STATUS_CONFIRMED, 'Order confirmed'),
     ]
 
-    # discount = models.ForeignKey(verbose_name='Скидка', primary_key=Discount, on_delete=models.PROTECT)
-    tax = models.ForeignKey(to=Tax, verbose_name='Tax', on_delete=models.PROTECT, null=True, blank=True)
-    user = models.ForeignKey(to=User, verbose_name='Customer', on_delete=models.CASCADE)
+    discount = models.ForeignKey(to=Discount, verbose_name='Discount', on_delete=models.CASCADE, null=True, blank=True)
+    tax = models.ForeignKey(to=Tax, verbose_name='Tax', on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(to=User, verbose_name='Customer', on_delete=models.CASCADE, null=True, blank=True)
     amount = models.DecimalField(verbose_name='Amount', max_digits=12, decimal_places=2, default=0)
+    final_amount = models.DecimalField(verbose_name='Final amount', max_digits=12, decimal_places=2, default=0)
     creation_time = models.DateTimeField('Order creation time', default=timezone.now)
     status = models.PositiveSmallIntegerField('Order status', choices=STATUS_CHOICES, default=STATUS_CART)
 
@@ -115,10 +115,42 @@ class Order(models.Model):
             amount += item.get_order_item_price
         return amount
 
+    @property
+    def get_amount_cents(self):
+        return int(self.amount) * 100
+
+    @property
+    def get_final_amount_cents(self):
+        return int(self.final_amount) * 100
+
     def make_order(self):
         if self.status == self.STATUS_CART:
+            if self.final_amount == Decimal(0):
+                self.final_amount = self.amount
             self.status = self.STATUS_CONFIRMED
             self.save()
+
+    @property
+    def calculate_amount_discount(self):
+        amount_discount = self.amount/100 * self.discount.percent_off
+        return amount_discount
+
+    @property
+    def calculate_amount_tax(self):
+        if self.tax.inclusive is False:
+            amount_tax = self.final_amount/100 * self.tax.percentage
+            return amount_tax
+        return Decimal(0)
+
+
+@receiver(pre_save, sender=Order)
+def recalculate_amount_pre_save(sender, instance, **kwargs):
+    order = instance
+    order.final_amount = order.amount
+    if order.discount:
+        order.final_amount -= order.calculate_amount_discount
+    if order.tax:
+        order.final_amount += order.calculate_amount_tax
 
 
 class OrderItem(models.Model):
@@ -136,6 +168,7 @@ def recalculate_order_amount_after_save(sender, instance, **kwargs):
     order = instance.order
     if order.status == order.STATUS_CART:
         order.amount = order.get_amount
+        order.final_amount = order.get_amount
         order.save()
 
 
@@ -144,4 +177,5 @@ def recalculate_order_amount_after_delete(sender, instance, **kwargs):
     order = instance.order
     if order.status == order.STATUS_CART:
         order.amount = order.get_amount
+        order.final_amount = order.get_amount
         order.save()
