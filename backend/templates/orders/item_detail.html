@@ -23,11 +23,24 @@
 							{% if item_in_cart %}
 								<a href="{% url 'cart' %}" class="btn btn-success m-0">Item added to cart</a>
 							{% else %}
-								<form action="{% url 'add_one_item_to_cart' item.id %}" method="post" class="">
-									{% csrf_token %}
-									<button type="submit" class="btn btn-success">Add to cart</button>
-								</form>
-								<button class="btn btn-danger ms-2" id="checkout-button">Buy now</button>
+                                <form action="{% url 'add_one_item_to_cart' item.id %}" method="post">
+                                    {% csrf_token %}
+
+                                    {% if user.is_authenticated %}
+									    <button type="submit" class="btn btn-success">Add to cart</button>
+                                    {% else %}
+                                        <a class="btn btn-success" tabindex="0" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true"
+                                           data-bs-content="
+                                            <div class='row m-0 p-0'>
+                                                <span class='col-12 m-0 p-0'>You must be login in to add an item to your cart.</span>
+                                                <a href={% url 'login' %} class='col-12 btn btn-light m-0 mt-2'>Sign in</a>
+                                                <a href={% url 'registration' %} class='col-12 btn btn-success m-0 mt-2'>Sign up</a>
+                                            </div>">
+                                            Add to cart
+                                        </a>
+                                    {% endif %}
+                                </form>
+                                <button class="btn btn-danger ms-2" id="checkout-button">Buy now</button>
 							{% endif %}
 						</div>
                     </div>
@@ -38,7 +51,6 @@
     <script type="text/javascript">
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        // Create an instance of the Stripe object with your publishable API key
         var stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
         var checkoutButton = document.getElementById("checkout-button");
         checkoutButton.addEventListener("click", function () {
@@ -55,9 +67,6 @@
                 return stripe.redirectToCheckout({ sessionId: session.id });
             })
             .then(function (result) {
-                // If redirectToCheckout fails due to a browser or network
-                // error, you should display the localized error message to your
-                // customer using error.message.
                 if (result.error) {
                     alert(result.error.message);
                 }
@@ -70,5 +79,11 @@
     <script>
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+        const popover = new bootstrap.Popover('.popover-dismiss', {
+            trigger: 'focus'
+        })
     </script>
 {% endblock %}

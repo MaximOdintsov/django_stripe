@@ -16,7 +16,7 @@
                         <p class="card-text border-bottom pb-3">{{ item.description }}</p>
                         <div class="row justify-content-between p-0 m-0">
                             <span class="fs-5 col-12 text-center m-0 mb-3">{{ item.price }} $</span>
-                            <div class="row col-12 m-0 p-0">
+                            <div class="row col-12 justify-content-between m-0 p-0">
                                 {% if item_in_cart %}
                                     <a href="{% url 'cart' %}" class="d-flex col-12 btn btn-success align-items-center justify-content-center m-0">
                                         Item added to cart
@@ -26,11 +26,24 @@
                                         <button type="submit" class="btn btn-danger h-100 w-100">Remove item from cart</button>
                                     </form>
                                 {% else %}
-                                    <form action="{% url 'add_one_item_to_cart' item.id %}" method="post" class="col-6 m-0 p-0">
+                                    <form action="{% url 'add_one_item_to_cart' item.id %}" method="post" class="col-5 m-0 p-0">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-success h-100 w-100">Add to cart</button>
+
+                                        {% if user.is_authenticated %}
+                                            <button type="submit" class="btn btn-success">Add to cart</button>
+                                        {% else %}
+                                            <a class="btn btn-success" tabindex="0" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true"
+                                               data-bs-content="
+                                                <div class='row m-0 p-0'>
+                                                    <span class='col-12 m-0 p-0'>You must be login in to add an item to your cart.</span>
+                                                    <a href={% url 'login' %} class='col-12 btn btn-light m-0 mt-2'>Sign in</a>
+                                                    <a href={% url 'registration' %} class='col-12 btn btn-success m-0 mt-2'>Sign up</a>
+                                                </div>">
+                                                Add to cart
+                                            </a>
+                                        {% endif %}
                                     </form>
-                                    <a href="{% url 'item' item.id %}" class="d-flex col-6 btn btn-danger align-items-center justify-content-center m-0 p-0">
+                                    <a href="{% url 'item' item.id %}" class="d-flex col-5 btn btn-danger align-items-center justify-content-center m-0 p-0">
                                         Buy now
                                     </a>
                                 {% endif %}
@@ -41,4 +54,11 @@
             {% endfor %}
         </div>
     </main>
+    <script>
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+        const popover = new bootstrap.Popover('.popover-dismiss', {
+            trigger: 'focus'
+        })
+    </script>
 {% endblock %}
