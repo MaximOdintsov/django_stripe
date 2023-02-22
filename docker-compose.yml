@@ -22,8 +22,8 @@ services:
 
   stripe:
     container_name: stripe_container
-    image: stripe/stripe-cli:v1.7.4
-    command: listen --forward-to 127.0.0.1:8000/webhooks/stripe/
+    image: stripe/stripe-cli:v1.13.9
+    command: listen --forward-to 194.58.118.152/webhooks/stripe/
     depends_on:
       - web
     environment:
