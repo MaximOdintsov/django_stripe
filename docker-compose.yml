@@ -25,7 +25,7 @@ services:
     command: listen --forward-to ${DOMAIN}/webhooks/stripe/
     depends_on:
       - web
-    environment:
+    env_file:
       - ./.env.stripe_cli
 
   db:
