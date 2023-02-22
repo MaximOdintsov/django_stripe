@@ -22,11 +22,11 @@ services:
   stripe:
     container_name: stripe_container
     image: stripe/stripe-cli:v1.13.9
-    command: listen --forward-to ${DOMAIN}/webhooks/stripe/
-    depends_on:
-      - web
+    command: listen --forward-to 127.0.0.1/webhooks/stripe/
     env_file:
       - ./.env.stripe_cli
+    depends_on:
+      - web
 
   db:
     container_name: postgres_container
