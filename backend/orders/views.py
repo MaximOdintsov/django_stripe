@@ -87,7 +87,7 @@ class CartView(LoginRequiredMixin, generic.View):
     def post(self, request, *args, **kwargs):
         cart = Order.get_cart(request.user)
         order_items = cart.orderitem_set.all()
-        domain_url = 'http://localhost:8000/'
+        domain_url = settings.DOMAIN_URL
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
         try:
@@ -187,7 +187,7 @@ class BuyOneItemView(generic.View):
     def post(self, request, *args, **kwargs):
         item_id = self.kwargs["pk"]
         item = Item.objects.get(id=item_id)
-        domain_url = 'http://localhost:8000/'
+        domain_url = settings.DOMAIN_URL
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
         try:

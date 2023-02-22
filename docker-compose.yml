@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  web:
+    container_name: django_container
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: always
+    command: sh -c "cd backend && 
+                    gunicorn test_django_stripe.wsgi:application --bind 0.0.0.0:8000 && 
+                    stripe listen --forward-to localhost:8000/webhooks/stripe/"
+
+    env_file:
+      - ./.env.prod
+    volumes:
+      - static_volume:/home/app/web/backend/static/
+    expose:
+      - 8000
+    depends_on:
+      - db
+
+  stripe:
+    container_name: stripe_container
+    image: stripe/stripe-cli:v1.7.4
+    command: listen --forward-to 127.0.0.1:8000/webhooks/stripe/
+    depends_on:
+      - web
+    environment:
+      - STRIPE_API_KEY=sk_test_51Mc9qtH5PWJ81LoQ9Mbf0eu6PXKAKTTWJQ0h9zZ7QTLGm9pj4Kb9fYK4Ll0J1CE3nwzGwpoLVef2G56f8HLrGiVy00y3AbosJm
+      - STRIPE_DEVICE_NAME=djstripe_docker
+
+  db:
+    container_name: postgres_container
+    image: postgres:15.1-alpine
+    restart: always
+    env_file:
+      - ./.env.prod.db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  nginx:
+    container_name: nginx_container
+    restart: always
+    build: ./nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - static_volume:/home/app/web/backend/static/
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  static_volume:
