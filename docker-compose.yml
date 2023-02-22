@@ -22,7 +22,7 @@ services:
   stripe:
     container_name: stripe_container
     image: stripe/stripe-cli:v1.13.9
-    command: listen --forward-to 127.0.0.1/webhooks/stripe/
+    command: listen --forward-to 127.0.0.1:1337/webhooks/stripe/
     env_file:
       - ./.env.stripe_cli
     depends_on:
@@ -42,7 +42,7 @@ services:
     restart: always
     build: ./nginx
     ports:
-      - "80:80"
+      - "1337:80"
     volumes:
       - static_volume:/home/app/web/backend/static/
     depends_on:

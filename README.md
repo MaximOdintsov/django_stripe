@@ -11,9 +11,9 @@ SQL_PASSWORD=your_db_password
 SQL_HOST=db
 SQL_PORT=5432
 
-ALLOWED_HOSTS=localhost 127.0.0.1 0.0.0.0 [::1]
-DOMAIN_URL=http://127.0.0.1/
-CSRF_TRUSTED_ORIGINS=http://localhost:8000/ http://127.0.0.1:8000/ [::1]
+ALLOWED_HOSTS=localhost 127.0.0.1 127.0.0.1:1337 0.0.0.0 [::1]
+DOMAIN_URL=http://127.0.0.1:1337/
+CSRF_TRUSTED_ORIGINS=http://localhost:1337 http://127.0.0.1:1337 [::1]
 
 STRIPE_PUBLISHABLE_KEY=pk_test_yourkey
 STRIPE_SECRET_KEY=sk_test_yourkey
@@ -29,7 +29,6 @@ POSTGRES_PASSWORD=your_db_password
 ```
 STRIPE_API_KEY=sk_test_yourkey
 STRIPE_DEVICE_NAME=stripe
-DOMAIN=127.0.0.1
 ```
 * Запустить docker-compose:
 ```
@@ -64,8 +63,9 @@ SQL_USER=your_db_user
 SQL_PASSWORD=your_db_password
 SQL_HOST=localhost
 SQL_PORT=5432
-DOMAIN_URL=http://127.0.0.1/
+DOMAIN_URL=http://127.0.0.1:8000/
 ALLOWED_HOSTS=localhost 127.0.0.1 0.0.0.0 [::1]
+CSRF_TRUSTED_ORIGINS=http://localhost:8000/ http://127.0.0.1:8000/ [::1]
 STRIPE_PUBLISHABLE_KEY=pk_test_yourkey
 STRIPE_SECRET_KEY=sk_test_yourkey
 STRIPE_WEBHOOK_SECRET=whsec_yourkey
