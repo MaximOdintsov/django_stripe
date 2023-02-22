@@ -29,6 +29,7 @@ POSTGRES_PASSWORD=your_db_password
 ```
 STRIPE_API_KEY=sk_test_yourkey
 STRIPE_DEVICE_NAME=stripe
+DOMAIN=127.0.0.1
 ```
 * Запустить docker-compose:
 ```
