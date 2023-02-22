@@ -27,8 +27,7 @@ services:
     depends_on:
       - web
     environment:
-      - STRIPE_API_KEY=sk_test_51Mc9qtH5PWJ81LoQ9Mbf0eu6PXKAKTTWJQ0h9zZ7QTLGm9pj4Kb9fYK4Ll0J1CE3nwzGwpoLVef2G56f8HLrGiVy00y3AbosJm
-      - STRIPE_DEVICE_NAME=djstripe_docker
+      - ./.env.stripe_cli
 
   db:
     container_name: postgres_container
@@ -44,7 +43,7 @@ services:
     restart: always
     build: ./nginx
     ports:
-      - "8000:80"
+      - "80:80"
     volumes:
       - static_volume:/home/app/web/backend/static/
     depends_on:
