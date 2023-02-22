@@ -315,8 +315,11 @@ def stripe_webhook(request):
         final_amount = event['data']['object']['amount_total']
         try:
             username = request.META['USERNAME']
+            print('username')
             user = User.objects.get(username=username)
+            print('user')
             cart = Order.get_cart(user)
+            print('cart')
         except Exception:
             cart = Order.objects.create()
 
