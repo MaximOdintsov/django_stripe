@@ -94,6 +94,10 @@ STRIPE_WEBHOOK_SECRET=whsec_yourkey
 ~/test_django_stripe$ python3 backend/manage.py runserver
 ```
 
+## Где взять ключи:
+* STRIPE_PUBLISHABLE_KEY и STRIPE_SECRET_KEY: https://dashboard.stripe.com/test/apikeys 
+* STRIPE_WEBHOOK_SECRET: https://dashboard.stripe.com/test/webhooks
+
 ### Недоработки:
 * При создании заказа через вебхук stripe, в заказ не добавляются orderitem
 * При развертывании приложения через докер, вебхук не привязывает пользователя к заказу
