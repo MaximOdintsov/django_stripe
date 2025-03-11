@@ -2,15 +2,20 @@
 Данный проект представляет собой веб-приложение, разработанное с использованием фреймворка Django и интеграцией платежной системы Stripe. Проект позволяет пользователям совершать онлайн-платежи с использованием безопасного и современного API Stripe, что обеспечивает гибкость в обработке как одноразовых платежей, так и подписок.
 
 ## Основные возможности
-- Аутентификация и регистрация пользователей: Реализована система регистрации, входа и управления профилем.
-- Создание и управление заказами: Пользователи могут формировать заказы и оплачивать их через Stripe.
-- Интеграция с Stripe: Обработка платежей посредством Stripe API, включая создание сессий оплаты и обработку вебхуков для асинхронного подтверждения транзакций.
-- Поддержка тестового и продакшн режимов: Возможность легко переключаться между тестовыми и реальными ключами API для безопасного тестирования и запуска.
+- **Аутентификация и регистрация пользователей:**  
+  Реализована система регистрации, входа и управления профилем.
+- **Создание и управление заказами:**  
+  Пользователи могут формировать заказы и оплачивать их через Stripe.
+- **Интеграция с Stripe:**  
+  Обработка платежей посредством Stripe API, включая создание сессий оплаты и обработку вебхуков для асинхронного подтверждения транзакций.
+- **Поддержка тестового и продакшн режимов:**  
+  Возможность легко переключаться между тестовыми и реальными ключами API для безопасного тестирования и запуска.
+  
 ## Технологии
-- Backend: Python, Django
-- Платежная система: Stripe API
-- База данных: PostgreSQL
-- Деплой: Docker
+- **Backend:** Python, Django
+- **Платежная система:** Stripe API
+- **База данных:** PostgreSQL
+- **Деплой:** Docker
 
 # Установка и запуск
 ## Получить ключи для stripe:
@@ -18,12 +23,12 @@
 * STRIPE_WEBHOOK_SECRET: https://dashboard.stripe.com/test/webhooks
 
 ## Запуск через Docker
-* Клонирование репозитория
+* **Клонирование репозитория:**
 ```
 git clone https://github.com/MaximOdintsov/django_stripe.git
 cd django_stripe
 ```
-* Создать файл **.env.prod**:
+* **Создать файл *.env.prod*:**
 ```
 SECRET_KEY=django-insecure-securekey
 DEBUG=1
@@ -42,46 +47,46 @@ STRIPE_PUBLISHABLE_KEY=pk_test_yourkey
 STRIPE_SECRET_KEY=sk_test_yourkey
 STRIPE_WEBHOOK_SECRET=whsec_yourkey
 ```
-* Создать файл **.env.prod.db**:
+* **Создать файл *.env.prod.db*:**
 ```
 POSTGRES_DB=your_db_name
 POSTGRES_USER=your_db_user
 POSTGRES_PASSWORD=your_db_password
 ```
-* Создать файл **.env.stripe_cli**:
+* **Создать файл *.env.stripe_cli*:**
 ```
 STRIPE_API_KEY=sk_test_yourkey
 STRIPE_DEVICE_NAME=stripe
 ```
-* Запустить docker-compose:
+* **Запустить docker-compose:**
 ```
 docker compose up -d --build
 ```
-* Авторизоваться и запустить stripeCLI:
+* **Авторизоваться и запустить stripeCLI:**
 ```
 docker compose exec stripe stripe login
 docker compose exec stripe stripe listen --forward-to 127.0.0.1/webhooks/stripe/
 ```
-* Создать миграции:
+* **Создать миграции:**
 ```
 docker compose exec web python3 backend/manage.py migrate
 ```
-* Создать суперпользователя:
+* **Создать суперпользователя:**
 ```
 docker compose exec web python3 backend/manage.py createsuperuser
 ```
-* Собрать статические файлы:
+* **Собрать статические файлы:**
 ```
 docker compose exec web python3 backend/manage.py collectstatic
 ```
 
 ## Запуск локально на linux:
-* Клонирование репозитория
+* **Клонирование репозитория:**
 ```
 git clone https://github.com/MaximOdintsov/django_stripe.git
 cd django_stripe
 ```
-* Создать файл **.env**:
+* **Создать файл **.env**:**
 ```
 SECRET_KEY=django-insecure-securekey
 DEBUG=1
@@ -98,35 +103,31 @@ STRIPE_PUBLISHABLE_KEY=pk_test_yourkey
 STRIPE_SECRET_KEY=sk_test_yourkey
 STRIPE_WEBHOOK_SECRET=whsec_yourkey
 ```
-* Создать виртуальное окружение и установить зависимости
+* **Создать виртуальное окружение и установить зависимости:**
 ```
 python3 -m pip venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
-* Создать миграции в БД:
+* **Создать миграции в БД:**
 ```
 cd backend
 ./manage.py migrate
 ```
-* Запустить тесты:
+* **Запустить тесты:**
 ```
 ./manage.py test orders.tests --failfast
 ```
-* Создать суперпользователя:
+* **Создать суперпользователя:**
 ```
 ./manage.py createsuperuser
 ```
-* Авторизоваться и запустить stripeCLI:
+* **Авторизоваться и запустить stripeCLI:**
 ```
 ./stripe login
 ./stripe listen --forward-to 127.0.0.1/webhooks/stripe/
 ```
-* Запустить приложение:
+* **Запустить приложение:**
 ```
 ./manage.py runserver
 ```
-
-### Недоработки:
-* При создании заказа через вебхук stripe, в заказ не добавляются orderitem
-* При развертывании приложения через докер, вебхук не привязывает пользователя к заказу
